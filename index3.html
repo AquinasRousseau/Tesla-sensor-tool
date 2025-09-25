@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tesla Sensor Safety Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { margin: 10px; padding: 5px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        #results { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Tesla-Style Sensor Safety Checker</h1>
+    <p>Enter comma-separated speeds (mph) and distances (ft):</p>
+    <input type="text" id="speeds" placeholder="e.g., 30,45,20">
+    <input type="text" id="distances" placeholder="e.g., 100,150,50">
+    <button onclick="checkSensors()">Check Safety</button>
+    <div id="results"></div>
+
+    <script>
+        async function checkSensors() {
+            const speeds = document.getElementById('speeds').value;
+            const distances = document.getElementById('distances').value;
+            const url = `http://localhost:8000/sensor_check?speed=${speeds}&distance=${distances}`;
+           
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                let output = '';
+                if (data.error) {
+                    output = `<p style="color:red;">Error: ${data.error}</p>`;
+                } else {
+                    data.results.forEach(result => {
+                        output += `<p>Speed: ${result.speed} mph | Distance: ${result.distance} ft | Verdict: ${result.verdict}</p>`;
+                    });
+                }
+                document.getElementById('results').innerHTML = output;
+            } catch (error) {
+                document.getElementById('results').innerHTML = '<p style="color:red;">Failed to connect to API.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
